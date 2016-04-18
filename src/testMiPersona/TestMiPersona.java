@@ -24,12 +24,8 @@ import java.util.GregorianCalendar;
  */
 public class TestMiPersona {
 	public static void main(String[] args) {
-		try {
-			guardar();
-			leer();
-		} catch (IOException | ClassNotFoundException e) {
-			System.err.println(e.getMessage());
-		}
+		guardar();
+		leer();
 	}
 
 	/**
@@ -41,10 +37,13 @@ public class TestMiPersona {
 	 *             Cuando el archivo no se encuentra.
 	 * @throws ClassNotFoundException
 	 */
-	private static void leer() throws IOException, FileNotFoundException, ClassNotFoundException{
+	private static void leer() {
 		System.out.println("Recuperando archivo..");
-		ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream("ficha.obj")));
-		System.out.println(ois.readObject());
+		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream("ficha.obj")))) {
+			System.out.println(ois.readObject());
+		} catch (IOException | ClassNotFoundException e) {
+			System.err.println(e.getMessage());
+		}
 	}
 
 	/**
@@ -55,12 +54,17 @@ public class TestMiPersona {
 	 * @throws FileNotFoundException
 	 *             Cuando el archivo no se encuentra.
 	 */
-	private static void guardar() throws IOException, FileNotFoundException {
-		ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("ficha.obj")));
-		Persona persona = new Persona("Antonio", "Luque Bravo", new GregorianCalendar(1996, 07, 11));
-		System.out.println("Muestro persona antes de guardarla en el fichero..\n" + persona.toStringFechaNacimiento());
-		oos.writeObject(persona);
-		oos.close();
-		System.out.println("Guardado.");
+	private static void guardar() {
+		try (ObjectOutputStream oos = new ObjectOutputStream(
+				new BufferedOutputStream(new FileOutputStream("ficha.obj")))) {
+			Persona persona = new Persona("Antonio", "Luque Bravo", new GregorianCalendar(1996, 07, 11));
+			System.out.println(
+					"Muestro persona antes de guardarla en el fichero..\n" + persona.toStringFechaNacimiento());
+			oos.writeObject(persona);
+			oos.close();
+			System.out.println("Guardado.");
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+		}
 	}
 }
